@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library("readr") #Lee los archivos 
 library("tm")  #Contiene tranformaciones para el text mining
+library("wordcloud")
 ```
 
 # Descripción de los datos  
@@ -27,10 +28,11 @@ El tipo de corpus es general dado que contiene diversos ejemplos del habla en id
 # Directorios para de cada integrante del grupo
 
 #/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS
+#/Users/quiebres/Documents/Ivan Maldonado/UVG/Sexto Semestre/Data Science/Laboratorio6DS
 #-------------------------------------------------
 
 # Se lee y se crea un dataframe del archivo
-setwd("/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS")
+setwd("/Users/quiebres/Documents/Ivan Maldonado/UVG/Sexto Semestre/Data Science/Laboratorio6DS")
 productos <- read_csv("GrammarandProductReviews.csv")
 class(productos)
 ```
@@ -42,8 +44,48 @@ class(productos)
 
 
 ## Creación del corpus
+
+Para limpiar el texto de las opiniones de los productos realizadas por los clientes, decidimos solo tomar en cuenta la columna de reviews.title, ya que en esta parte del dataset se conglomeran las opiniones de los clientes de manera resumida.
 ```{r}
 texto <- paste(productos$reviews.title, collapse = " ")
 opini <- Corpus(VectorSource(texto))
 ```
+
+## Limpieza del corpus
+```{r}
+opini <-tm_map(opini,content_transformer(tolower))
+opini <-tm_map(opini,content_transformer(removeNumbers))
+opini <- tm_map(opini, content_transformer(removePunctuation))
+opini <-tm_map(opini,stripWhitespace)
+opini <-tm_map(opini,removeWords,stopwords(kind="en"))
+
+```
+
+## Creación de matriz de documentación
+
+```{r}
+opini_dtm <- DocumentTermMatrix(opini)
+```
+
+## Encontrando la palabras con más frecuencia
+```{r}
+findFreqTerms(opini_dtm, lowfreq=1000)
+```
+```{r}
+wordcloud(opini, max.words=200, random.order= FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
