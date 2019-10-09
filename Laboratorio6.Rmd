@@ -49,5 +49,21 @@ for (j in seq(texto)) {
   texto[j] <- gsub("@[[:alnum:][:punct:]]*", "", texto[j])
   texto[j] <- gsub("#[^[:space:]]*", "", texto[j])
 }
+
+#Removiendo stopwords
+
+
+texto <- tm_map(texto, removeWords, stopwords("english"))
+
+#Removiendo signos de puntuacion
+for (j in seq(texto)) {
+    blog[j] <- gsub("[[:punct:]]"," ", texto[j])
+}
+
+texto <- tm_map(texto, removePunctuation)
+
+# removiendo números
+texto <- tm_map(texto, removeNumbers)
+
 ```
 
