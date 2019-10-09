@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-
+# Librerías a usar
 ```{r}
 library("readr") #Lee los archivos 
 library("tm")  #Contiene tranformaciones para el text mining
@@ -22,48 +22,28 @@ El dataset es un conjunto de reseñas de 1000 productos diferentes. El tamaño  
 El origen de la base de datos proviene de Datafiniti´s Product database e incluye datos de la reseña como el producto, el autor de la reseña, el título, la fecha, etc. 
 
 El tipo de corpus es general dado que contiene diversos ejemplos del habla en idioma inglés que ha sido producido por personas de distintas edades, regiones y clases sociales. Así también se podría calificar como monolingue.
-
-```{r cars}
+```{r}
 #-------------------------------------------------
 # Directorios para de cada integrante del grupo
 
-#/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS/data
+#/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS
 #-------------------------------------------------
 
-texto <- VCorpus(DirSource("/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS/data"), readerControl = list(language = "en"))
-
+# Se lee y se crea un dataframe del archivo
+setwd("/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS")
+productos <- read_csv("GrammarandProductReviews.csv")
+class(productos)
 ```
 
 
-### Limpieza de datos
 
-Se eliminan los emoticones, las url, usuario de twitter y hashtags que aparecen en los textos. 
 
-* *[\^\x01-\x7F]*: En este caso, el ^ significa que el gsub() va a borrar todo excepto lo que sigue a continuación: \x01-\x7F, es decir, borrará todo excepto los caracteres del código ASCII. Basicamente esta función ayuda a eliminar emoticones.  
-* *http[[:alnum:][:punct:]]*: Busca las palabras que empiecen con http y elimina los caracteres que siguen después de él, incluyendo signos de puntuación.
-* *#[^[:space:]]*: Busca los hashtags (palabras que empiecen con el #) y las elimina. En este caso no es necesario colocar los signos de puntuación. 
+# Limpieza y preprocesamiento
+
+
+## Creación del corpus
 ```{r}
-for (j in seq(texto)) {
-  texto[j] <- gsub("[^\x01-\x7F]", "", texto[j])
-  texto[[] <- gsub("http[[:alnum:][:punct:]]*", "", texto[j])
-  texto[j] <- gsub("@[[:alnum:][:punct:]]*", "", texto[j])
-  texto[j] <- gsub("#[^[:space:]]*", "", texto[j])
-}
-
-#Removiendo stopwords
-
-
-texto <- tm_map(texto, removeWords, stopwords("english"))
-
-#Removiendo signos de puntuacion
-for (j in seq(texto)) {
-    blog[j] <- gsub("[[:punct:]]"," ", texto[j])
-}
-
-texto <- tm_map(texto, removePunctuation)
-
-# removiendo números
-texto <- tm_map(texto, removeNumbers)
-
+texto <- paste(productos$reviews.title, collapse = " ")
+opini <- Corpus(VectorSource(texto))
 ```
 
