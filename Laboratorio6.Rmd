@@ -45,7 +45,7 @@ Se eliminan los emoticones, las url, usuario de twitter y hashtags que aparecen 
 ```{r}
 for (j in seq(texto)) {
   texto[j] <- gsub("[^\x01-\x7F]", "", texto[j])
-  texto[[j]] <- gsub("http[[:alnum:][:punct:]]*", "", texto[j])
+  texto[[] <- gsub("http[[:alnum:][:punct:]]*", "", texto[j])
   texto[j] <- gsub("@[[:alnum:][:punct:]]*", "", texto[j])
   texto[j] <- gsub("#[^[:space:]]*", "", texto[j])
 }
