@@ -16,11 +16,12 @@ library("readr") #Lee los archivos
 library("tm")  #Contiene tranformaciones para el text mining
 ```
 
-## R Markdown
+# Descripción de los datos  
+El dataset es un conjunto de reseñas de 1000 productos diferentes. El tamaño  del conjunto de datos es de 94 Megabytes, donde el conglomerado de datos se encuentra distribuido en un total de 25 columnas. 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+El origen de la base de datos proviene de Datafiniti´s Product database e incluye datos de la reseña como el producto, el autor de la reseña, el título, la fecha, etc. 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+El tipo de corpus es general dado que contiene diversos ejemplos del habla en idioma inglés que ha sido producido por personas de distintas edades, regiones y clases sociales. Así también se podría calificar como monolingue.
 
 ```{r cars}
 #-------------------------------------------------
@@ -32,3 +33,21 @@ When you click the **Knit** button a document will be generated that includes bo
 texto <- VCorpus(DirSource("/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS/data"), readerControl = list(language = "en"))
 
 ```
+
+
+### Limpieza de datos
+
+Se eliminan los emoticones, las url, usuario de twitter y hashtags que aparecen en los textos. 
+
+* *[\^\x01-\x7F]*: En este caso, el ^ significa que el gsub() va a borrar todo excepto lo que sigue a continuación: \x01-\x7F, es decir, borrará todo excepto los caracteres del código ASCII. Basicamente esta función ayuda a eliminar emoticones.  
+* *http[[:alnum:][:punct:]]*: Busca las palabras que empiecen con http y elimina los caracteres que siguen después de él, incluyendo signos de puntuación.
+* *#[^[:space:]]*: Busca los hashtags (palabras que empiecen con el #) y las elimina. En este caso no es necesario colocar los signos de puntuación. 
+```{r}
+for (j in seq(texto)) {
+  texto[j] <- gsub("[^\x01-\x7F]", "", texto[j])
+  texto[[j]] <- gsub("http[[:alnum:][:punct:]]*", "", texto[j])
+  texto[j] <- gsub("@[[:alnum:][:punct:]]*", "", texto[j])
+  texto[j] <- gsub("#[^[:space:]]*", "", texto[j])
+}
+```
+
