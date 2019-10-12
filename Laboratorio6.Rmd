@@ -10,11 +10,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-# Librerías a usar
+# Librerías
 ```{r}
 library("readr") #Lee los archivos 
 library("tm")  #Contiene tranformaciones para el text mining
 library("wordcloud")
+library(ggplot2) #para gráficos
+library("SentimentAnalysis")
 ```
 
 # Descripción de los datos  
@@ -32,7 +34,7 @@ El tipo de corpus es general dado que contiene diversos ejemplos del habla en id
 #-------------------------------------------------
 
 # Se lee y se crea un dataframe del archivo
-setwd("/Users/quiebres/Documents/Ivan Maldonado/UVG/Sexto Semestre/Data Science/Laboratorio6DS")
+setwd("/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS")
 productos <- read_csv("GrammarandProductReviews.csv")
 class(productos)
 ```
@@ -41,42 +43,67 @@ class(productos)
 
 
 # Limpieza y preprocesamiento
-
+Antes de comenzar a realizar la limpieza y preprocesamiento de los datos, fue necesario separar
 
 ## Creación del corpus
-
-Para limpiar el texto de las opiniones de los productos realizadas por los clientes, decidimos solo tomar en cuenta la columna de reviews.title, ya que en esta parte del dataset se conglomeran las opiniones de los clientes de manera resumida.
+Para limpiar el texto de las opiniones de los productos realizadas por los clientes, decidimos solo tomar en cuenta la columna de reviews.text, ya que en esta parte del dataset se conglomeran las opiniones de los clientes. De esta manera, 
 ```{r}
 texto <- paste(productos$reviews.title, collapse = " ")
-opini <- Corpus(VectorSource(texto))
+opinion <- Corpus(VectorSource(texto))
 ```
 
-## Limpieza del corpus
+## Limpieza y preprocesamiento del corpus
+Para este apartado, se decidió transformar todas las letras mayúsculas a minúsculas para obtener un corpus más homogéneo. Con respecto a los números y a los stopwords, también se decidió eliminarlos ya que interferían en el análisis de palabras y facilitan a que el corpus reduzca su tamaño. Ahora bien, con los signos de puntuación se decidió eliminarlos todos, incluyendo aquellas combinaciones de signos que crean un emoticon. Decidimos basarnos solamente en la palabra y en su contexto dentro del corpus. 
 ```{r}
-opini <-tm_map(opini,content_transformer(tolower))
-opini <-tm_map(opini,content_transformer(removeNumbers))
-opini <- tm_map(opini, content_transformer(removePunctuation))
-opini <-tm_map(opini,stripWhitespace)
-opini <-tm_map(opini,removeWords,stopwords(kind="en"))
-
+opinion <- tm_map(opinion, content_transformer(tolower))
+opinion <- tm_map(opinion, content_transformer(removeNumbers))
+opinion <- tm_map(opinion, content_transformer(removePunctuation))
+opinion <- tm_map(opinion, stripWhitespace)
+opinion <- tm_map(opinion, removeWords,stopwords(kind="en"))
 ```
+
+
+
+# Análisis exploratorio
 
 ## Creación de matriz de documentación
-
 ```{r}
-opini_dtm <- DocumentTermMatrix(opini)
+opinion_dtm <- DocumentTermMatrix(opinion)
 ```
 
 ## Encontrando la palabras con más frecuencia
 ```{r}
-findFreqTerms(opini_dtm, lowfreq=1000)
+findFreqTerms(opinion_dtm, lowfreq=1000)
 ```
+
+## Nube de palabas
+Al momento de realizar la nube de palabras, vemos que las que más resaltan son palabras positivas, tales como _great, love, good, awesome, best_. También es importante mencionar que las palabras que están en color verde, tienen a mencoinar un poco más del producto que se está evaluando.
 ```{r}
-wordcloud(opini, max.words=200, random.order= FALSE, rot.per=0.35, 
+wordcloud(opinion, max.words=100, random.order= FALSE, rot.per=0.35, 
           colors=brewer.pal(8, "Dark2"))
 ```
+## Histograma de frecuencias
+Este histograma muestra aquellas palabras que tienen por lo menos 1,500 repeticiones. Vemos que vuelven aparecer comentarios positivos, lo cual puede mostrar un indicio que la mayoría de opiniones que han realizado los clientes han sido positivas. Cabe mencionar que hace falta indagar más acera de las opiniones negativas.
+```{r}
+freq.reviews <- colSums(as.matrix(opinion_dtm))
+
+wfReviews <- data.frame(word = names(freq.reviews), freq = freq.reviews)
+head(wfReviews)
 
 
+HistoR <- ggplot(subset(wfReviews, freq>1500), aes(x = reorder(word, -freq), y = freq)) +
+          geom_bar(stat = "identity") + ggtitle("Palabras más frecuentes") +
+          theme(axis.text.x=element_text(angle=45, hjust=1))
+HistoR
+
+```
+
+# Análisis de sentimientos
+```{r}
+a_sent<-analyzeSentiment(opinion_dtm) 
+b_sent<-convertToBinaryResponse(a_sent)
+productos<-cbind(productos, b_sent)
+```
 
 
 
