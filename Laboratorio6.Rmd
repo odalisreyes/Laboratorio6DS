@@ -18,6 +18,7 @@ library("wordcloud")
 library(ggplot2) #para gráficos
 library("SentimentAnalysis")
 library("SnowballC") #Para sentiment analysis
+library(tidytext) #otra para análisis de sentimientos.
 ```
 
 # Descripción de los datos  
@@ -109,6 +110,11 @@ barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20
 
 ```
 
+# Palabras negativas y positivas
+
+```{r}
+get_sentiments("bing")
+```
 
 # Análisis de sentimientos
 ```{r}
@@ -117,14 +123,65 @@ b_sent<-convertToBinaryResponse(a_sent)
 productos<-cbind(productos, b_sent)
 ```
 
+# Análisis de datos 
+## ¿Cuáles son los 10 productos de mejor calidad dado su review?
+
+Se tienen los siguientes productos: 
+
+```{r}
+best<- productos[order(productos$PositivityGI, productos$PositivityHE, productos$PositivityLM, productos$PositivityQDAP, decreasing = TRUE), ]
+bestP<- unique(best[,10])
+head(bestP, 10)
+```
 
 
+## ¿Cuáles son los 10 productos de menor calidad dado su review?
+Se tienen los siguientes productos, los cuales son los que tienen menor cantidad de buenos reviews.
+```{r}
+tail(best,10)
+```
 
+## ¿Cuáles son los usuarios que dan la mayor cantidad de reviews a distintos productos?
+Los usuarios que dan mayor cantidad de reviews son: 
+```{r}
+usersDist <- productos[,c("reviews.id", "reviews.username", "name")]
+usersDist <- distinct(usersDist, name, reviews.username)
+usersDist <- sort(table(usersDist$reviews.username), decrease=T)
+head(usersDist,10)
+```
+## ¿Cuáles son los usuarios que más reviews negativos y positivos dan en promedio?
+hay que arreglar esto xd
 
+```{r}
+usersMost <- productos[,c("reviews.id", "reviews.username", "SentimentGI", "SentimentHE", "SentimentLM", "SentimentQDAP")]
+u <-unique(as.character(usersMost$reviews.username))
+p<-vector()
+n<-vector()
+for(i in 1:length(u)){
+  a<-u[i]
+  suppressWarnings(b<-usersMost[usersMost$reviews.username==a,c("SentimentGI", "SentimentHE", "SentimentLM", "SentimentQDAP")])
+  
+  p[i]<- sum(b == "positive")
+  
+  n[i]<- sum(b == "negative")
+}
 
+usersMost<-cbind(u, p, n, (p+n), abs(p-n))
+head(usersMost[order(usersMost[,5], desc(usersMost[,4]), decreasing = T), ], 10)
+```
 
+## ¿Cuáles son los productores que tienen productos de mejor calidad?
+Los productores que tienen productos de mejor calidad son:
 
+```{r}
+bestProv<- unique(best[,8])
+head(bestProv, 10)
 
+```
 
+## ¿Cuáles son los productores que tienen productos de peor calidad?
+Los productores que tienen productos de peor calidad son:
+```{r}
+tail(bestProv, 10)
 
-
+```
