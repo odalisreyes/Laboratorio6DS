@@ -17,6 +17,7 @@ library("tm")  #Contiene tranformaciones para el text mining
 library("wordcloud")
 library(ggplot2) #para gráficos
 library("SentimentAnalysis")
+library("SnowballC") #Para sentiment analysis
 ```
 
 # Descripción de los datos  
@@ -31,10 +32,11 @@ El tipo de corpus es general dado que contiene diversos ejemplos del habla en id
 
 #/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS
 #/Users/quiebres/Documents/Ivan Maldonado/UVG/Sexto Semestre/Data Science/Laboratorio6DS
+#/Users/hectorreyes/Documents/Mayra 
 #-------------------------------------------------
 
 # Se lee y se crea un dataframe del archivo
-setwd("/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS")
+setwd("/Users/hectorreyes/Documents/Mayra ")
 productos <- read_csv("GrammarandProductReviews.csv")
 class(productos)
 ```
@@ -77,7 +79,7 @@ findFreqTerms(opinion_dtm, lowfreq=1000)
 ```
 
 ## Nube de palabas
-Al momento de realizar la nube de palabras, vemos que las que más resaltan son palabras positivas, tales como _great, love, good, awesome, best_. También es importante mencionar que las palabras que están en color verde, tienen a mencoinar un poco más del producto que se está evaluando.
+Al momento de realizar la nube de palabras, vemos que las que más resaltan son palabras positivas, tales como _great, love, good, awesome, best_. También es importante mencionar que las palabras que están en color verde, tienen a mencionar un poco más del producto que se está evaluando.
 ```{r}
 wordcloud(opinion, max.words=100, random.order= FALSE, rot.per=0.35, 
           colors=brewer.pal(8, "Dark2"))
@@ -97,6 +99,16 @@ HistoR <- ggplot(subset(wfReviews, freq>1500), aes(x = reorder(word, -freq), y =
 HistoR
 
 ```
+## Histograma de palabras menos frecuentes
+Con el fin de explorar que palabras, o si hay algún sentimiento que tenga menor frecuencia se realizó un histograma de las palabras con menor frecuencia. Explorando el data frame que se creó y el gráfico de barras, se tienen expresiones como 'aaaa', 'yummy' y variaciones del inglés como 'amaaaazin'. 
+```{r}
+freqWords <- apply(opinion_dtm,2,sum)
+freqData <- data.frame(word=names(freqWords), frecuency=as.numeric(freqWords), stringsAsFactors = FALSE)
+freqData<- freqData[order(freqData$frecuency, decreasing=TRUE), ]
+barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20), main = "Palabras menos frecuentes", ylab = "Freq")
+
+```
+
 
 # Análisis de sentimientos
 ```{r}
