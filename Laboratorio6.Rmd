@@ -20,6 +20,7 @@ library("SentimentAnalysis")
 library("SnowballC") #Para sentiment analysis
 library(tidytext) #otra para análisis de sentimientos.
 library("syuzhet")
+library(dplyr) 
 ```
 
 # Descripción de los datos  
@@ -111,10 +112,58 @@ barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20
 
 ```
 
-# Palabras negativas y positivas
+# Clasificación de reviews
 
+Se utilizó el paquete Syuzhet conjuntamente con el de SnowballC para la clasificación de reviews. Básicamente se creó un conjunto de vectores que contiene las reviews de los productos y a partir de la función *get_sentiment()* se puede clasificar de acuerdo a la calificación que se le asigna según los sentimientos en el review. Se consideraron 3 casos, siendo *value* una variable que representa la calificación otorgada por los sentimientos buenos o malos presentes en el review. Los sentimientos malos se asignan con valores negativos y los buenos con valores positivos, entonce se tiene que: 
+* value>0: tiene mayor cantidad de sentimientos *buenos*, por ende, debe de tener una calificación mayor a 0.
+* value=0: es neutro, dado que tiene la misma cantidad de sentimientos buenos y malos.
+* value<0: tiene mayor cantidad de sentimientos *malos*.
+
+##Positivos
 ```{r}
-get_sentiments("bing")
+
+#AFFINN <-get_sentiments("afinn")
+#productos <-unique(productos)
+
+#review_words <- productos %>%
+ # select(name, reviews.text) %>%
+  #unnest_tokens(word, reviews.text) 
+ 
+
+#reviews_sentiment <- review_words %>%
+ # inner_join(AFINN, by = "word") %>%
+  #group_by(name) %>%
+  #summarize(sentiment = mean(afinn_score))
+
+#reviews_sentiment
+
+
+word <- as.vector(productos$reviews.text)
+set.seed(3)
+porciento <- 0.05
+word <- sample(word, length(word)*porciento)
+emotion <-get_nrc_sentiment(word)
+value <- get_sentiment(word)
+mostPos <- word[value == max(value)]
+mostNeg <- word[value == min(value)]
+
+#Positivos
+positive <- word[value>0]
+head(positive)
+```
+
+
+##Negativos
+```{r}
+#Positivos
+negative <- word[value<0]
+head(negative)
+```
+## Neutros
+```{r}
+#Positivos
+neutral <- word[value==0]
+head(neutral)
 ```
 
 # Análisis de sentimientos
@@ -125,6 +174,8 @@ productos<-cbind(productos, b_sent)
 ```
 
 # Análisis de datos 
+
+
 ## ¿Cuáles son los 10 productos de mejor calidad dado su review?
 
 Se tienen los siguientes productos: 
