@@ -194,14 +194,13 @@ tail(bestProv, 10)
 
 ## Imagine que usted es analista de negocios y que está realizando este análisis para el productor que tiene más productos con malos reviews ¿Qué le propondría a esta empresa para mejorar sus productos? Puede basar su análisis en la frecuencia de las palabras de las opiniones.
 
-Según nuestro análisis, el productor es "Yosemite Home Decor". 
+Según nuestro análisis, el productor es "Yosemite Home Decor". Al momento de inspeccionar las palabras utilizadas en sus reviews se tienen los siguientes puntos importantes a destacar: 
+* Esta empresa solamente tiene un review, lo cual afecta bastante dado que los parámetros utilizados para obtener el productor cuyos productos han tenido malos reviews se relacionan con la puntuación total obtenida con el análisis de sentimientos. 
+* Al analizar la review se obtuvo que el cliente no quedó satisfecho dado que esperaba algo más.
+* Se le recomienta al productor que mejore la calidad del material, así como tratar de cumplir con lo ofrecido en la imagen del producto dado que el cliente ni siquiera probó al producto al ver que no tenían la misma apariencia.
 
 ```{r}
-productosP <- as.vector(productos$reviews.text)
-emotion <- get_nrc_sentiment(productosP)
-palabras <-cbind(productos$reviews.text, emotion)
-value <-get_sentiment(productos$reviews.text)
-mostPos <- palabras[value==max(value)]
+worstP <- productos[productos$manufacturer=="Yosemite Home Decor", ]
 ```
 
 
