@@ -19,6 +19,7 @@ library(ggplot2) #para gráficos
 library("SentimentAnalysis")
 library("SnowballC") #Para sentiment analysis
 library(tidytext) #otra para análisis de sentimientos.
+library("syuzhet")
 ```
 
 # Descripción de los datos  
@@ -33,11 +34,11 @@ El tipo de corpus es general dado que contiene diversos ejemplos del habla en id
 
 #/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS
 #/Users/quiebres/Documents/Ivan Maldonado/UVG/Sexto Semestre/Data Science/Laboratorio6DS
-#/Users/hectorreyes/Documents/Mayra 
+#/Users/hectorreyes/Documents/Mayra/Laboratorio6DS
 #-------------------------------------------------
 
 # Se lee y se crea un dataframe del archivo
-setwd("/Users/hectorreyes/Documents/Mayra ")
+setwd("/Users/hectorreyes/Documents/Mayra/Laboratorio6DS")
 productos <- read_csv("GrammarandProductReviews.csv")
 class(productos)
 ```
@@ -132,13 +133,17 @@ Se tienen los siguientes productos:
 best<- productos[order(productos$PositivityGI, productos$PositivityHE, productos$PositivityLM, productos$PositivityQDAP, decreasing = TRUE), ]
 bestP<- unique(best[,10])
 head(bestP, 10)
+
+bett <- ddply(productos, .(name), summarize, sum=sum(PositivityGI,PositivityHE,PositivityLM,PositivityQDAP))
+bett <- bett[order(bett$sum, decreasing=TRUE),]
+unique(head(bett,10))
 ```
 
 
 ## ¿Cuáles son los 10 productos de menor calidad dado su review?
 Se tienen los siguientes productos, los cuales son los que tienen menor cantidad de buenos reviews.
 ```{r}
-tail(best,10)
+unique(tail(bett,10))
 ```
 
 ## ¿Cuáles son los usuarios que dan la mayor cantidad de reviews a distintos productos?
@@ -174,9 +179,9 @@ head(usersMost[order(usersMost[,5], desc(usersMost[,4]), decreasing = T), ], 10)
 Los productores que tienen productos de mejor calidad son:
 
 ```{r}
-bestProv<- unique(best[,8])
-head(bestProv, 10)
-
+bestProv <- ddply(productos, .(manufacturer), summarize, sum=sum(PositivityGI,PositivityHE,PositivityLM,PositivityQDAP))
+bestProv <- bestProv[order(bestProv$sum, decreasing=TRUE),]
+unique(head(bestProv,10))
 ```
 
 ## ¿Cuáles son los productores que tienen productos de peor calidad?
@@ -185,3 +190,19 @@ Los productores que tienen productos de peor calidad son:
 tail(bestProv, 10)
 
 ```
+
+
+## Imagine que usted es analista de negocios y que está realizando este análisis para el productor que tiene más productos con malos reviews ¿Qué le propondría a esta empresa para mejorar sus productos? Puede basar su análisis en la frecuencia de las palabras de las opiniones.
+
+Según nuestro análisis, el productor es "Yosemite Home Decor". 
+
+```{r}
+productosP <- as.vector(productos$reviews.text)
+emotion <- get_nrc_sentiment(productosP)
+palabras <-cbind(productos$reviews.text, emotion)
+value <-get_sentiment(productos$reviews.text)
+mostPos <- palabras[value==max(value)]
+```
+
+
+
