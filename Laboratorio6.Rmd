@@ -40,7 +40,7 @@ El tipo de corpus es general dado que contiene diversos ejemplos del habla en id
 #-------------------------------------------------
 
 # Se lee y se crea un dataframe del archivo
-setwd("/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS")
+setwd("/Users/quiebres/Documents/Ivan Maldonado/UVG/Sexto Semestre/Data Science/Laboratorio6DS")
 productos <- read_csv("GrammarandProductReviews.csv")
 class(productos)
 ```
@@ -109,7 +109,7 @@ HistoR
 
 ```
 ## Histograma de palabras menos frecuentes
-Con el fin de explorar que palabras, o si hay algún sentimiento que tenga menor frecuencia se realizó un histograma de las palabras con menor frecuencia. Explorando el data frame que se creó y el gráfico de barras, se tienen expresiones como 'aaaa', 'yummy' y variaciones del inglés como 'amaaaazin'. 
+Con el fin de explorar que palabras, o si hay algún sentimiento que tenga menor frecuencia se realizó un histograma de las palabras con menor frecuencia. Explorando el data frame que se creó y el gráfico de barras, se tienen expresiones como 'timegot', 'againsorry' y  'muslin'. 
 ```{r}
 freqWords <- apply(opinion_dtm,2,sum)
 freqData <- data.frame(word=names(freqWords), frecuency=as.numeric(freqWords), stringsAsFactors = FALSE)
@@ -228,11 +228,11 @@ for(i in 1:length(u)){
   n[i]<- sum(b == "negative")
 }
 
-usersMost<-cbind(u, p, n, (p+n), abs(p-n))
-head(usersMost[order(usersMost[,5], desc(usersMost[,4]), decreasing = T), ], 10)
+usersMost<-cbind(u)
+head(usersMost, 10)
 ```
 
-## ¿Cuáles son los productores que tienen productos de mejor calidad?
+## ¿Cuáles son los productores que tienen de mejor calidad?
 Los productores que tienen productos de mejor calidad son:
 
 ```{r}
