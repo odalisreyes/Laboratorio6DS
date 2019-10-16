@@ -117,7 +117,13 @@ freqData<- freqData[order(freqData$frecuency, decreasing=TRUE), ]
 barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20), main = "Palabras menos frecuentes", ylab = "Freq")
 
 ```
+# Palabras positivas y negativas
+```{r}
 
+tokens <- data_frame(text = word) %>% unnest_tokens(word, text)
+tokens %>%
+  inner_join(get_sentiments("bing"))
+```
 # Clasificación de reviews
 
 Se utilizó el paquete Syuzhet conjuntamente con el de SnowballC para la clasificación de reviews. Básicamente se creó un conjunto de vectores que contiene las reviews de los productos y a partir de la función *get_sentiment()* se puede clasificar de acuerdo a la calificación que se le asigna según los sentimientos en el review. Se consideraron 3 casos, siendo *value* una variable que representa la calificación otorgada por los sentimientos buenos o malos presentes en el review. Los sentimientos malos se asignan con valores negativos y los buenos con valores positivos, entonce se tiene que: 
