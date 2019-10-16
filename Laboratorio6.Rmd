@@ -21,6 +21,7 @@ library("SnowballC") #Para sentiment analysis
 library(tidytext) #otra para análisis de sentimientos.
 library("syuzhet")
 library(dplyr) 
+library(plyr)
 ```
 
 # Descripción de los datos  
@@ -39,7 +40,7 @@ El tipo de corpus es general dado que contiene diversos ejemplos del habla en id
 #-------------------------------------------------
 
 # Se lee y se crea un dataframe del archivo
-setwd("/Users/hectorreyes/Documents/Mayra/Laboratorio6DS")
+setwd("/Users/odalisrg/Documents/Semestre 6/Data Science/Laboratorio6DS")
 productos <- read_csv("GrammarandProductReviews.csv")
 class(productos)
 ```
@@ -53,7 +54,12 @@ Antes de comenzar a realizar la limpieza y preprocesamiento de los datos, fue ne
 ## Creación del corpus
 Para limpiar el texto de las opiniones de los productos realizadas por los clientes, decidimos solo tomar en cuenta la columna de reviews.text, ya que en esta parte del dataset se conglomeran las opiniones de los clientes. De esta manera, 
 ```{r}
-texto <- paste(productos$reviews.title, collapse = " ")
+texto <- as.vector(productos$reviews.text)
+set.seed(3)
+porciento <- 0.5
+sample <- sample(texto, length(texto)*porciento)
+
+opinion <- paste(productos$reviews.text, collapse = " ")
 opinion <- Corpus(VectorSource(texto))
 ```
 
@@ -78,7 +84,7 @@ opinion_dtm <- DocumentTermMatrix(opinion)
 
 ## Encontrando la palabras con más frecuencia
 ```{r}
-findFreqTerms(opinion_dtm, lowfreq=1000)
+findFreqTerms(opinion_dtm, lowfreq=2000)
 ```
 
 ## Nube de palabas
@@ -96,7 +102,7 @@ wfReviews <- data.frame(word = names(freq.reviews), freq = freq.reviews)
 head(wfReviews)
 
 
-HistoR <- ggplot(subset(wfReviews, freq>1500), aes(x = reorder(word, -freq), y = freq)) +
+HistoR <- ggplot(subset(wfReviews, freq>6000), aes(x = reorder(word, -freq), y = freq)) +
           geom_bar(stat = "identity") + ggtitle("Palabras más frecuentes") +
           theme(axis.text.x=element_text(angle=45, hjust=1))
 HistoR
